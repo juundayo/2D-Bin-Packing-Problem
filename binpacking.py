@@ -1,16 +1,14 @@
-# LIBRARY
+# ----------------------------------------------------------------------------#
 
 import numpy # Used for arrays and lists.
 import random # Used to generate random data.
 import copy # Used to create a duplicate truck object.
 
-#####################################################################################################################
-
-# OBJECTS
+# ----------------------------------------------------------------------------#
 
 trucks = []
 class Truck:
-    def __init__ (self, maxWeight, height, length, width): # Truck object constructor function.
+    def __init__ (self, maxWeight, height, length, width): 
         self.maxWeight = maxWeight        
         self.height = height
         self.length = length
@@ -19,7 +17,7 @@ class Truck:
         
 parcels = []
 class Parcel:
-    def __init__ (self, weight, height, length, width, ID, price): # Parcel object constructor function.
+    def __init__ (self, weight, height, length, width, ID, price):
         self.weight = weight
         self.height = height
         self.length = length
@@ -29,16 +27,12 @@ class Parcel:
         self.area = width*length
         self.rotated = False
         
-#####################################################################################################################
-
-# FUNCTIONS
+# ----------------------------------------------------------------------------#
 
 def initializeValues(selection):
-    
     if selection == 1:
         dailyOrderAmount = int(input("Enter the daily amount of orders: "))
         truckAmount = int(input("Enter the daily amount of trucks: "))
-        
     elif selection == 2:    
         dailyOrderAmount = random.randint(5, 20) 
         truckAmount = random.randint(1, 3) 
@@ -46,24 +40,20 @@ def initializeValues(selection):
     return dailyOrderAmount, truckAmount
 
 def truckValues(selection, i):
-    
     if selection == 1:
         print (f'DATA FOR TRUCK NUMBER {i}')
         maxWeight = int(input("Enter the maximum weight of the truck: "))
         height = float(input("Enter the height of the truck: "))
         length = float(input("Enter the length of the truck: "))
         width = float(input("Enter the width of the truck: "))
-            
     elif selection == 2:
         maxWeight = random.randint(400, 600)        
         height = round(random.uniform(2.0, 2.20), 2) 
         length = round(random.uniform(3.0, 4.0), 2)
         width = round(random.uniform(2.0, 2.20), 2)
-    
     return maxWeight, height, length, width
 
 def parcelValues(selection, i):
-    
     if selection == 1:
         print (f'DATA FOR PARCEL NUMBER {i}')
         weight = int(input("Enter the weight of the parcel: "))
@@ -71,7 +61,6 @@ def parcelValues(selection, i):
         length = float(input("Enter the length of the parcel: "))
         width = float(input("Enter the width of the parcel: "))
         price = float(input("Enter the price of the parcel: "))
-        
     elif selection == 2:
         weight = round(random.uniform(0.10, 45), 2)
         height = round(random.uniform(0.05, 1), 2)
@@ -84,48 +73,51 @@ def parcelValues(selection, i):
 def lines():
     print ("\n---------------------\n")
     
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
-    
+# ----------------------------------------------------------------------------#
+
 def initializePopulation(parcels, trucks):
-    population_solutions = 14 # Number of solutions for each population.
-    population_size = (population_solutions, len(parcels)) # Returns dimensions (10, amount of parcels).
-    generation_amount = 800 # Amount of generations.
+    # Number of solutions for each population.
+    population_solutions = 14 
+    # Returns dimensions (10, amount of parcels).
+    population_size = (population_solutions, len(parcels))
+    # Amount of generations.
+    generation_amount = 800 
     
     # Creating the first set of (probably invalid) solutions.
     solutions = numpy.random.randint(-1, len(trucks), size=population_size)
-            
     print (f'Initial solutions:\n{solutions}')
 
     return population_solutions, population_size, solutions, generation_amount
 
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
+# ----------------------------------------------------------------------------#
 
-def truckValidity(parcels, trucks, solutions):
+def truckValidity(parcels, trucks, solutions):    
+    ''' 
+    3D array used to store tuples for each piece that was cut in a truck.
+    When a truck is cut, we take a right part and an upper part. Each tuple 
+    has an index of 0 until 3 (4 spots).
+    In indexes 0 and 1 we are referencing to the respective width and length 
+    of the right part, and in indexes 2 and 3 we are referencing to the
+    respecting width and length of the upper part. 
+    '''
     updated_trucks = copy.deepcopy(trucks)
-    
-    # 3D array used to store tuples for each piece that was cut in a truck.
-    # When a truck is cut, we take a right part and an upper part. Each tuple has an index of 0 until 3 (4 spots).
-    # In indexes 0 and 1 we are referencing to the respective width and length of the right part, and in indexes
-    # 2 and 3 we are referencing to the respecting width and length of the upper part.
     subtruck = [[] for i in range(len(trucks))]
     after_one = numpy.full(len(trucks), False, dtype = bool)
 
-    # Iterating through every solution to check if it is valid. If an invalid solution is found, then the function returns False.
+    # Iterating through every solution to check if it is valid. 
+    # If an invalid solution is found, then the function returns False.
     for j in range(len(parcels)):
-
-        # Examining if the parcel ended up getting in a truck. If not, the loop continues.
+        # Examining if the parcel ended up getting in a truck.
+        # If not, the loop continues.
         if (solutions[j] != -1 ):
-            
             # Examining if the weight is valid.
             if (parcels[j].weight <= updated_trucks[solutions[j]].maxWeight):
-                
                 # Checking if this is the first item added to truck solutions[j].
                 if (after_one[solutions[j]] == False):
-                    
-                    # If it doesn't fit, we will try to rotate it and examine if that solution is valid.
+                    # If it doesn't fit, we will try to rotate   
+                    # it and examine if that solution is valid.
                     if ((parcels[j].length > updated_trucks[solutions[j]].length)
                         or (parcels[j].width > updated_trucks[solutions[j]].width)):
-                        
                         # Examining the same if statement with intverted width and length values.
                         if ((parcels[j].length <= updated_trucks[solutions[j]].width) 
                             and (parcels[j].width <= updated_trucks[solutions[j]].length)):
@@ -141,14 +133,13 @@ def truckValidity(parcels, trucks, solutions):
                             subtruck[solutions[j]].append([right_width, right_length, upper_width, upper_length])
                             parcels[j].rotated = True
                             after_one[solutions[j]] = True
-                            
-                            continue # Rotated to fit; continuing.
-                            
+                            # Rotated to fit; continuing.   
+                            continue   
                         else: 
-                            return False # First package did not fit; leaving.
-
-                    else: # It fits without needing a rotation! (still first parcel in the truck)
-                                                                        
+                            # First package did not fit; leaving.
+                            return False 
+                    # It fits without needing a rotation! (still first parcel in the truck)
+                    else:                                                   
                         # Creating a tuple for our solution (truck).
                         right_width = updated_trucks[solutions[j]].width - parcels[j].width
                         right_length = parcels[j].length
@@ -160,14 +151,17 @@ def truckValidity(parcels, trucks, solutions):
                         subtruck[solutions[j]].append([right_width, right_length, upper_width, upper_length])
                         after_one[solutions[j]] = True
                         
-                        continue # Length and width are valid; continuing.
-                        
-                else: # More than one item in truck solutions[j]. This means that after_one[solutions[j]] == True.
-                    
-                    yun = False # Flag to check if there was a new subtruck that needs to be created.
-                    for w in range(len(subtruck[solutions[j]])): # Iterating through the amount of tuples caused by cut trucks.
-
-                        if (parcels[j].width <= subtruck[solutions[j]][w][0] and parcels[j].length <= subtruck[solutions[j]][w][1]): 
+                         # Length and width are valid; continuing.
+                        continue
+                # More than one item in truck solutions[j]. 
+                # This means that after_one[solutions[j]] == True.
+                else:
+                    # Flag to check if there was a new subtruck that needs to be created.
+                    yun = False 
+                    # Iterating through the amount of tuples caused by cut trucks.
+                    for w in range(len(subtruck[solutions[j]])): 
+                        if (parcels[j].width <= subtruck[solutions[j]][w][0] and \
+                            parcels[j].length <= subtruck[solutions[j]][w][1]): 
                             right_width = subtruck[solutions[j]][w][0] - parcels[j].width
                             right_length = parcels[j].length
                             upper_width = subtruck[solutions[j]][w][0]
@@ -178,7 +172,6 @@ def truckValidity(parcels, trucks, solutions):
                             
                             yun = True
                             break
-                            
                         # Rotation check.
                         elif (parcels[j].length <= subtruck[solutions[j]][w][0] and parcels[j].width <= subtruck[solutions[j]][w][1]):                                    
                             right_width = subtruck[solutions[j]][w][0] - parcels[j].length
@@ -192,7 +185,6 @@ def truckValidity(parcels, trucks, solutions):
                             
                             yun = True
                             break
-
                         elif (parcels[j].width <= subtruck[solutions[j]][w][2] and parcels[j].length <= subtruck[solutions[j]][w][3]):
                             right_width = subtruck[solutions[j]][w][2] - parcels[j].width
                             right_length = parcels[j].length
@@ -204,7 +196,6 @@ def truckValidity(parcels, trucks, solutions):
                             
                             yun = True
                             break
-                        
                         # Rotation check.
                         elif (parcels[j].length <= subtruck[solutions[j]][w][2] and parcels[j].width <= subtruck[solutions[j]][w][3]):
                             right_width = subtruck[solutions[j]][w][2] - parcels[j].length
@@ -218,28 +209,34 @@ def truckValidity(parcels, trucks, solutions):
                             
                             yun = True             
                             break
-          
                     if (yun == True):
                         updated_trucks[solutions[j]].maxWeight -= parcels[j].weight
                         subtruck[solutions[j]].append([right_width, right_length, upper_width, upper_length])
-                        
-                        continue # Subtrucks created; continuing.
+                         
+                        # Subtrucks created; continuing.
+                        continue
                         
                     else:
-                        return False # Did not fit anywhere; leaving.
+                        # Did not fit anywhere; leaving.
+                        return False
             else: 
-                return False # Weight is invalid; leaving.
+                # Weight is invalid; leaving.
+                return False 
         else: 
-            continue # The parcel did not get into a truck; continuing.
+            # The parcel did not get into a truck; continuing.
+            continue 
+    # No invalid solutions.
+    return True
 
-    return True # If the for loop ends, that means that there were no invalid solutions.
+# ----------------------------------------------------------------------------#
 
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
-
-''' Mathematical equation used to calculate the fitness:
+'''
+Mathematical equation used to calculate the fitness:
     Sum from 0 until len(trucks) of [
-        ( Sum from 0 until len(parcels) of [ parcel that got in.area ] ) / truck[i].area ) times total number of parcels put in truck [i]
-    ]'''
+        ( Sum from 0 until len(parcels) of [ parcel that got in.area ] ) /
+        truck[i].area ) times total number of parcels put in truck [i]
+    ]
+'''
 def fitnessCalculation(parcels, trucks, solutions): # O(solution amount x parcel amount)    
     fitness = numpy.empty(len(solutions))
     truckPut = numpy.zeros(len(trucks))
@@ -249,30 +246,20 @@ def fitnessCalculation(parcels, trucks, solutions): # O(solution amount x parcel
     
     # Iterating through every solution of the array.
     for i in range(len(solutions)):
-        
         # Checking if the solution is valid.
         if (truckValidity(parcels, trucks, solutions[i]) == True):
-            
             # Updating the truckPut array.
             for j in range(len(parcels)):
-                
                 if (solutions[i][j] != -1):
-                    
                     truckPut[solutions[i][j]] += 1
-             
             solution_area_sum = 0
             
             # Iterating through each truck to calculate the fitness.
             for j in range(len(trucks)):
-                
                 for k in range(len(parcels)):
-                    
                     if (solutions[i][k] == j): # If the placement is the same as the truck, proceed.
-                        
                         solution_area_sum += parcels[k].area
-                
-                score += (solution_area_sum / trucks[j].area) * truckPut[j]
-                    
+                score += (solution_area_sum / trucks[j].area) * truckPut[j]           
         else:
             score = -10
         
@@ -283,10 +270,11 @@ def fitnessCalculation(parcels, trucks, solutions): # O(solution amount x parcel
         
     return fitness.astype(float)
 
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
+# ----------------------------------------------------------------------------#
         
 def chromosomeSelection(parcels, parent_amount, solutions, fitness): #O(parent_amount)
-    # Copying the fitness and storing it in a new list variable because it will be altered in the following for loop.
+    # Copying the fitness and storing it in a new list variable 
+    # because it will be altered in the following for loop.
     fitness = list(fitness)
     
     # Creating an array with its dimensions being (parent amount, amount of items)
@@ -302,9 +290,10 @@ def chromosomeSelection(parcels, parent_amount, solutions, fitness): #O(parent_a
         
     return parents
 
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
+# ----------------------------------------------------------------------------#
         
-def exploration(parcels, selected_parents, offspring_amount): # Exploration meaning Crossover. O(offspring_amount).
+def exploration(parcels, selected_parents, offspring_amount): 
+    # Exploration meaning Crossover. O(offspring_amount).
     # Creating an empty array to store the offsprings.
     # .shape[1] returns the amount of columns. 
     offspring = numpy.empty((offspring_amount, len(parcels)), dtype=int)
@@ -318,9 +307,10 @@ def exploration(parcels, selected_parents, offspring_amount): # Exploration mean
         
         random_value = random.uniform(0, 1) # Float in [0, 1).
         
-        # If a crossover occurs, the offspring will have some values from both parents; starting
-        # from 0 until the crossover point  (exclusive) for the data from the first parent, and from
-        # the crossover point until the end for the second parent. If one doesn't occur, the array
+        # If a crossover occurs, the offspring will have some values from 
+        # both parents; starting from 0 until the crossover point  (exclusive) 
+        # for the data from the first parent, and from the crossover point
+        # until the end for the second parent. If one doesn't occur, the array 
         # will still be filled but with the values of the first parent.
         if (random_value <= crossover_rate):
             offspring[i, 0:crossover_point] = selected_parents[first_parent, 0:crossover_point]
@@ -330,15 +320,16 @@ def exploration(parcels, selected_parents, offspring_amount): # Exploration mean
         
     return offspring
 
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
+# ----------------------------------------------------------------------------#
 
 def exploitation(parcels, trucks, offspring):
-    # Creating an empty array to save mutated solutions. (dimensions same as the offspring array)
+    # Creating an empty array to save mutated solutions. 
+    # (dimensions are the same as the offspring array)
     mutations = numpy.empty((offspring.shape), dtype=int)
     mutation_rate = 0.4 # 40% chance of a solution to go through the mutation process.
     
-    # Iterating through every solution from the mutations array. Then, a random number between
-    # 0 and 1 is generated to see if there will be a mutation or not.
+    # Iterating through every solution from the mutations array. Then, a random
+    # number between 0 and 1 is generated to see if there will be a mutation or not.
     for i in range(len(mutations)):
         random_number = random.uniform(0, 1)
         mutations[i,:] = offspring[i,:]
@@ -363,12 +354,13 @@ def exploitation(parcels, trucks, offspring):
    
     return mutations
 
-# 二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二二　#
+# ----------------------------------------------------------------------------#
 
 def neuralNetwork(parcels, trucks, population_size, solutions, generation_amount):
     placement_solutions = []  # Array that stores solutions for parcels.
     
-    # Counter that stops if a maximum solution has been found for too long (50 iterations), so as to save time in iterations.
+    # Counter that stops if a maximum solution has been found for 
+    # too long (50 iterations), so as to save time in iterations.
     stop_counter = 0 
     previous_max_fitness = None 
     
@@ -376,25 +368,37 @@ def neuralNetwork(parcels, trucks, population_size, solutions, generation_amount
     offspring_amount = len(population_size)-parent_amount
     
     for i in range(generation_amount):
-        
-        if (stop_counter == 50): # Best solution has been found since 50 iterations ago; leaving the loop.
+        # Best solution has been found since 50 
+        # iterations ago; leaving the loop.
+        if (stop_counter == 50): 
             break
         
-        # Calculating the current fitness score. O(generation_amount x solution amount x parcel amount)
+        # Calculating the current fitness score. 
+        # O(generation_amount x solution amount x parcel amount)
         fitness = fitnessCalculation(parcels, trucks, solutions)
         
-        # Choosing the ideal parents (which have a high fitness score). O(generation_amount x parent_amount)
-        selected_parents = chromosomeSelection(parcels, parent_amount, solutions, fitness)
+        # Choosing the ideal parents (which have a high fitness score). 
+        # O(generation_amount x parent_amount)
+        selected_parents = chromosomeSelection(parcels,
+                                               parent_amount, 
+                                               solutions, 
+                                               fitness)
         
-        # Creating an offspring using the parents selected. O(generation_amount x offspring_amount)
-        offspring = exploration(parcels, selected_parents, offspring_amount) 
+        # Creating an offspring using the parents selected. 
+        # O(generation_amount x offspring_amount)
+        offspring = exploration(parcels, 
+                                selected_parents, 
+                                offspring_amount) 
         
-        # Creating a mutation. O(generation_amount x mutation amount)
+        # Creating a mutation. 
+        # O(generation_amount x mutation amount)
         mutations = exploitation(parcels, trucks, offspring)
         
-        # Updating the initial_population array. First, the parent_amount rows of the population array will be 
-        # updated with the selected_parents variable. Then, the rows remaining will be updated with the mutations.
-        # 0:len(selected_parents) is used to select a portion of the rows starting from 0.
+        # Updating the initial_population array. First, the parent_amount 
+        # rows of the population array will be  updated with the 
+        # selected_parents variable. Then, the rows remaining will 
+        # be updated with the mutations. 0:len(selected_parents) is 
+        # used to select a portion of the rows starting from 0.
         solutions[0:len(selected_parents), :] = selected_parents 
         solutions[len(selected_parents):, :] = mutations.astype(int)
                 
@@ -402,7 +406,6 @@ def neuralNetwork(parcels, trucks, population_size, solutions, generation_amount
         
         # Checking to see if we have reached a maximum solution
         if (i>200):
-
             if (fitness[current_max_fitness] <= fitness[previous_max_fitness]):
                 stop_counter += 1
             else:
@@ -415,7 +418,8 @@ def neuralNetwork(parcels, trucks, population_size, solutions, generation_amount
     print ("\nFinal solutions: ")
     print(solutions)
     
-    # Selecting the best solution from the solutions array and storing it in a new variable.
+    # Selecting the best solution from the solutions
+    # array and storing it in a new variable.
     highest_fitness_index = numpy.argmax(last_generation_fitness)
     placement_solutions.append(solutions[highest_fitness_index, :])
         
@@ -424,11 +428,12 @@ def neuralNetwork(parcels, trucks, population_size, solutions, generation_amount
     
     return placement_solutions
 
-#####################################################################################################################
+# ----------------------------------------------------------------------------#
 
 print ("-------WELCOME-------\n")
 
-# Variable used as a parameter to determine whether or not all the values will be generated automatically.
+# Variable used as a parameter to determine whether or 
+# not all the values will be generated automatically.
 selection = int(input("Press 1 to insert values manually, or 2 to have them inserted randomly: ")) 
 
 # Generating the amount of daily orders and available trucks.
@@ -437,7 +442,8 @@ print (f'\nAmount of Orders today: {dailyOrderAmount}')
 print (f'Amount of Trucks: {truckAmount}')
 lines()
 
-# Creating as many truck and parcel objects as the number of trucks and parcels available.
+# Creating as many truck and parcel objects as 
+# the number of trucks and parcels available.
 for i in range(truckAmount):
     weight, height, length, width = truckValues(selection, i)
     trucks.append(Truck(weight, height, length, width))
@@ -472,7 +478,6 @@ always_true = truckValidity(parcels, trucks, placement_solutions[0])
 daily_earnings = 0
 lines()
 for j in range(dailyOrderAmount):
-    
     if (placement_solutions[0][j] == -1):
         print (f'Parcel numbered {j} was not placed in a truck.')
     else:
